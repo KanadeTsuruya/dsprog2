@@ -1,5 +1,5 @@
 import flet as ft
-
+import math
 
 class CalcButton(ft.ElevatedButton):
     def __init__(self, text, button_clicked, expand=1):
@@ -32,66 +32,104 @@ class ExtraActionButton(CalcButton):
 
 
 class CalculatorApp(ft.Container):
-    # application's root control (i.e. "view") containing all other controls
     def __init__(self):
         super().__init__()
         self.reset()
 
         self.result = ft.Text(value="0", color=ft.colors.WHITE, size=20)
-        self.width = 350
+        self.width = 500
         self.bgcolor = ft.colors.BLACK
         self.border_radius = ft.border_radius.all(20)
         self.padding = 20
+
+        self.scientific_buttons = ft.Column(
+            controls=[
+                ExtraActionButton(text="x²", button_clicked=self.scientific_button_clicked),
+                ExtraActionButton(text="x³", button_clicked=self.scientific_button_clicked),
+                ExtraActionButton(text="sin", button_clicked=self.scientific_button_clicked),
+                ExtraActionButton(text="cos", button_clicked=self.scientific_button_clicked),
+                ExtraActionButton(text="tan", button_clicked=self.scientific_button_clicked),
+            ]
+        )
+
         self.content = ft.Column(
             controls=[
                 ft.Row(controls=[self.result], alignment="end"),
                 ft.Row(
                     controls=[
-                        ExtraActionButton(
-                            text="AC", button_clicked=self.button_clicked
+                        ft.Column(
+                            controls=[
+                                ft.Row(
+                                    controls=[
+                                        ExtraActionButton(
+                                            text="AC", button_clicked=self.button_clicked
+                                        ),
+                                        ExtraActionButton(
+                                            text="+/-", button_clicked=self.button_clicked
+                                        ),
+                                        ExtraActionButton(text="%", button_clicked=self.button_clicked),
+                                        ActionButton(text="/", button_clicked=self.button_clicked),
+                                    ]
+                                ),
+                                ft.Row(
+                                    controls=[
+                                        DigitButton(text="7", button_clicked=self.button_clicked),
+                                        DigitButton(text="8", button_clicked=self.button_clicked),
+                                        DigitButton(text="9", button_clicked=self.button_clicked),
+                                        ActionButton(text="*", button_clicked=self.button_clicked),
+                                    ]
+                                ),
+                                ft.Row(
+                                    controls=[
+                                        DigitButton(text="4", button_clicked=self.button_clicked),
+                                        DigitButton(text="5", button_clicked=self.button_clicked),
+                                        DigitButton(text="6", button_clicked=self.button_clicked),
+                                        ActionButton(text="-", button_clicked=self.button_clicked),
+                                    ]
+                                ),
+                                ft.Row(
+                                    controls=[
+                                        DigitButton(text="1", button_clicked=self.button_clicked),
+                                        DigitButton(text="2", button_clicked=self.button_clicked),
+                                        DigitButton(text="3", button_clicked=self.button_clicked),
+                                        ActionButton(text="+", button_clicked=self.button_clicked),
+                                    ]
+                                ),
+                                ft.Row(
+                                    controls=[
+                                        DigitButton(
+                                            text="0", expand=2, button_clicked=self.button_clicked
+                                        ),
+                                        DigitButton(text=".", button_clicked=self.button_clicked),
+                                        ActionButton(text="=", button_clicked=self.button_clicked),
+                                    ]
+                                ),
+                            ]
                         ),
-                        ExtraActionButton(
-                            text="+/-", button_clicked=self.button_clicked
-                        ),
-                        ExtraActionButton(text="%", button_clicked=self.button_clicked),
-                        ActionButton(text="/", button_clicked=self.button_clicked),
+                        self.scientific_buttons
                     ]
-                ),
-                ft.Row(
-                    controls=[
-                        DigitButton(text="7", button_clicked=self.button_clicked),
-                        DigitButton(text="8", button_clicked=self.button_clicked),
-                        DigitButton(text="9", button_clicked=self.button_clicked),
-                        ActionButton(text="*", button_clicked=self.button_clicked),
-                    ]
-                ),
-                ft.Row(
-                    controls=[
-                        DigitButton(text="4", button_clicked=self.button_clicked),
-                        DigitButton(text="5", button_clicked=self.button_clicked),
-                        DigitButton(text="6", button_clicked=self.button_clicked),
-                        ActionButton(text="-", button_clicked=self.button_clicked),
-                    ]
-                ),
-                ft.Row(
-                    controls=[
-                        DigitButton(text="1", button_clicked=self.button_clicked),
-                        DigitButton(text="2", button_clicked=self.button_clicked),
-                        DigitButton(text="3", button_clicked=self.button_clicked),
-                        ActionButton(text="+", button_clicked=self.button_clicked),
-                    ]
-                ),
-                ft.Row(
-                    controls=[
-                        DigitButton(
-                            text="0", expand=2, button_clicked=self.button_clicked
-                        ),
-                        DigitButton(text=".", button_clicked=self.button_clicked),
-                        ActionButton(text="=", button_clicked=self.button_clicked),
-                    ]
-                ),
+                )
             ]
         )
+
+    def scientific_button_clicked(self, e):
+        data = e.control.data
+        try:
+            value = float(self.result.value)
+            if data == "x²":
+                self.result.value = str(self.format_number(value ** 2))
+            elif data == "x³":
+                self.result.value = str(self.format_number(value ** 3))
+            elif data == "sin":
+                self.result.value = str(self.format_number(math.sin(value)))
+            elif data == "cos":
+                self.result.value = str(self.format_number(math.cos(value)))
+            elif data == "tan":
+                self.result.value = str(self.format_number(math.tan(value)))
+            self.update()
+        except Exception:
+            self.result.value = "Error"
+            self.update()
 
     def button_clicked(self, e):
         data = e.control.data
@@ -170,10 +208,7 @@ class CalculatorApp(ft.Container):
 
 def main(page: ft.Page):
     page.title = "Calc App"
-    # create application instance
     calc = CalculatorApp()
-
-    # add application's root control to the page
     page.add(calc)
 
 
